@@ -17,7 +17,11 @@ func isStructural(r rune) bool {
 }
 
 func isNumeric(r rune) bool {
-	return '0' <= r && r <= '9'
+	return ('0' <= r && r <= '9') || isE(r) || r == '.' || r == '-' || r == '+'
+}
+
+func isE(r rune) bool {
+	return r == 'E' || r == 'e'
 }
 
 func peekSequence(peek func(int) rune, from, length int) string {

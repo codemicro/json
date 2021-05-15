@@ -91,37 +91,46 @@ func lexString(peek func(int) rune, consume func() rune) (bool, token, error) {
 func lexNumber(peek func(int) rune, consume func() rune) (bool, token, error) {
 
 	var buf []rune
-	var numPoints int
+	var (
+		numPoints int
+		numEs int
+	)
 
-	// TODO: parsing for e number notation
-	for isNumeric(peek(0)) || peek(0) == '.' {
+	for isNumeric(peek(0)) {
 
 		if peek(0) == '.' {
 			numPoints += 1
+		} else if isE(peek(0)) {
+			numEs += 1
 		}
 
 		buf = append(buf, consume())
 	}
 
+	fmt.Println(string(buf))
+
 	if len(buf) == 0 {
 		return false, nil, nil
 	}
 
-	switch numPoints {
-	case 0:
+	if numPoints > 1 {
+		return false, nil, errors.New("numbers cannot have more than one point")
+	} else if numEs > 1 {
+		return false, nil, errors.New("numbers cannot have more than one E")
+	}
+
+	if numEs == 0 && numPoints == 0 {
 		asInteger, err := strconv.ParseInt(string(buf), 10, 64)
 		if err != nil {
 			return false, nil, err
 		}
 		return true, asInteger, nil
-	case 1:
+	} else {
 		asFloat, err := strconv.ParseFloat(string(buf), 64)
 		if err != nil {
 			return false, nil, err
 		}
 		return true, asFloat, nil
-	default:
-		return false, nil, errors.New("numbers cannot have more than one point")
 	}
 }
 
