@@ -1,26 +1,25 @@
 package json
 
-import "errors"
+import (
+	"errors"
+	"fmt"
+)
 
-type nmt struct{}
-
-var noMoreTokens = nmt{}
-
-func parse(t *tokens) (interface{}, error) {
-	if t.peek(0) == leftSqBracket {
+// parse a single value
+func parse(t *tokens) (Node, error) {
+	currentToken := t.peek(0)
+	if currentToken == leftSqBracket {
 		return parseArray(t)
-	} else if t.peek(0) == leftCurlBracket {
+	} else if currentToken == leftCurlBracket {
 		return parseObject(t)
-	} else if len(t.tokens) > 1 {
-		return nil, errors.New("extra data")
 	} else {
-		return t.consume(), nil
+		return TokenAsNode(t.consume()), nil
 	}
 }
 
-func parseArray(t *tokens) (interface{}, error) {
+func parseArray(t *tokens) (Node, error) {
 
-	var values []interface{}
+	values := &Array{Value: []Node{}}
 
 	if t.peek(0) != leftSqBracket {
 		return nil, errors.New("arrays must begin with [")
@@ -42,16 +41,12 @@ func parseArray(t *tokens) (interface{}, error) {
 			return nil, errors.New("unexpected token")
 		}
 
-		if !isValue(t.peek(0)) {
-			return nil, errors.New("expected value")
-		}
-
 		parsedValue, err := parse(t)
 		if err != nil {
 			return nil, err
 		}
 
-		values = append(values, parsedValue)
+		values.Value = append(values.Value, parsedValue)
 
 		if t.peek(0) == comma {
 			t.consume()
@@ -62,9 +57,10 @@ func parseArray(t *tokens) (interface{}, error) {
 	return nil, errors.New("expected end of array")
 }
 
-func parseObject(t *tokens) (interface{}, error) {
-
-	values := make(map[string]interface{})
+func parseObject(t *tokens) (Node, error) {
+	values := &Object{
+		Value: map[string]Node{},
+	}
 
 	if t.peek(0) != leftCurlBracket {
 		return nil, errors.New("objects must begin with }")
@@ -78,7 +74,8 @@ func parseObject(t *tokens) (interface{}, error) {
 			return values, nil
 		}
 
-		if x := t.peek(-1); !(x == comma || x == rightCurlBracket) {
+		fmt.Println(t.peek(-1), t.peek(0))
+		if x := t.peek(-1); !(x == comma || x == leftCurlBracket) {
 			// this call to t.peek with -1 is only safe to do since we know we have at least 1 item in the token array
 			// on account of the initial check
 			return nil, errors.New("unexpected token")
@@ -100,16 +97,21 @@ func parseObject(t *tokens) (interface{}, error) {
 			return nil, errors.New("expected colon")
 		}
 
-		if !isValue(val) {
+		if valRune, ok := val.(rune); ok && isStructural(valRune) && valRune != leftSqBracket && valRune != leftCurlBracket {
+			fmt.Println(string(valRune))
 			return nil, errors.New("expected value")
 		}
 
-		values[stringKey] = val
-
-		for i := 0; i < 3; i += 1 {
+		for i := 0; i < 2; i += 1 {
 			t.consume()
 		}
 
+		parsedValue, err := parse(t)
+		if err != nil {
+			return nil, err
+		}
+
+		values.Value[stringKey] = parsedValue
 	}
 
 	return nil, errors.New("expected end of object")

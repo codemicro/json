@@ -50,7 +50,7 @@ func lex(input []byte) (*tokens, error) {
 		} else if isStructural(peek(0)) {
 			tokenBuf = append(tokenBuf, token(consume()))
 		} else {
-			return nil, fmt.Errorf("unknown character: %d", peek(0))
+			return nil, fmt.Errorf("unknown character: %s", string(peek(0)))
 		}
 
 	}

@@ -1,5 +1,9 @@
 package json
 
-func Parse(in []byte) (interface{}, error) {
-	return nil, nil
+func Load(in []byte) (interface{}, error) {
+	lexed, err := lex(in)
+	if err != nil {
+		return nil, err
+	}
+	return parse(lexed)
 }
