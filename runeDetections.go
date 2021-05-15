@@ -26,7 +26,7 @@ func isE(r rune) bool {
 
 func peekSequence(peek func(int) rune, from, length int) string {
 	var buf []rune
-	for i := 0; i  < length; i += 1 {
+	for i := 0; i < length; i += 1 {
 		x := peek(from + i)
 		if x != 0 {
 			buf = append(buf, x)

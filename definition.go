@@ -2,24 +2,24 @@ package json
 
 const (
 	// structural tokens
-	leftSqBracket = '['
-	rightSqBracket = ']'
-	leftCurlBracket = '{'
+	leftSqBracket    = '['
+	rightSqBracket   = ']'
+	leftCurlBracket  = '{'
 	rightCurlBracket = '}'
-	colon = ':'
-	comma = ','
+	colon            = ':'
+	comma            = ','
 
 	// other tokens
 	quotationMark = '"'
 
 	// whitespace tokens
-	tabulation = '\t'
+	tabulation     = '\t'
 	carriageReturn = '\r'
-	lineFeed = '\n'
-	space = ' '
+	lineFeed       = '\n'
+	space          = ' '
 
 	// literals
-	trueLiteral = "true"
+	trueLiteral  = "true"
 	falseLiteral = "false"
-	nullLiteral = "null"
+	nullLiteral  = "null"
 )

@@ -86,7 +86,7 @@ func parseObject(t *tokens) (Node, error) {
 		val := t.peek(2)
 
 		var (
-			ok bool
+			ok        bool
 			stringKey string
 		)
 		if stringKey, ok = key.(string); !ok {

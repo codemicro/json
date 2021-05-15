@@ -56,7 +56,7 @@ func (*Float) Type() NodeType {
 	return TypeFloat
 }
 
-type Null struct {}
+type Null struct{}
 
 func (*Null) Type() NodeType {
 	return TypeNull

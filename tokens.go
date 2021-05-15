@@ -20,16 +20,17 @@ func TokenAsNode(t token) Node {
 	case nmt:
 		return &Null{}
 	default:
-		panic(fmt.Sprintf("unknown type %t", t))
+		panic(fmt.Sprintf("unknown type %T", t))
 	}
 }
 
 type tokens struct {
 	tokens []token
-	index int
+	index  int
 }
 
-type nmt struct {}
+type nmt struct{}
+
 var noMoreTokens = nmt{}
 
 func (t *tokens) peek(offset int) token {

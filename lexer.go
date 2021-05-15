@@ -93,7 +93,7 @@ func lexNumber(peek func(int) rune, consume func() rune) (bool, token, error) {
 	var buf []rune
 	var (
 		numPoints int
-		numEs int
+		numEs     int
 	)
 
 	for isNumeric(peek(0)) {
