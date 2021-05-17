@@ -62,8 +62,6 @@ func lex(input []byte) (*tokens, error) {
 
 func lexString(peek func(int) rune, consume func() rune) (bool, token, error) {
 
-	// TODO: interpret escape sequences
-
 	if peek(0) != quotationMark {
 		return false, nil, nil
 	}
@@ -74,6 +72,7 @@ func lexString(peek func(int) rune, consume func() rune) (bool, token, error) {
 	for peek(0) != 0 { // run until end of input
 
 		if peek(0) == quotationMark {
+			// end of string
 			consume()
 			return true, string(buf), nil
 		}
@@ -82,7 +81,49 @@ func lexString(peek func(int) rune, consume func() rune) (bool, token, error) {
 			return false, nil, errors.New("whitespace excluding U+0020 disallowed in string")
 		}
 
-		buf = append(buf, consume())
+		// string escape sequences
+		var char rune
+		switch peekSequence(peek, 0, 2) {
+		case `\"`:
+			char = '"'
+			consumeSequence(consume, 2)
+		case `\\`:
+			char = '\\'
+			consumeSequence(consume, 2)
+		case `\/`:
+			char = '/'
+			consumeSequence(consume, 2)
+		case `\b`:
+			char = '\b'
+			consumeSequence(consume, 2)
+		case `\f`:
+			char = '\f'
+			consumeSequence(consume, 2)
+		case `\n`:
+			char = '\n'
+			consumeSequence(consume, 2)
+		case `\r`:
+			char = '\r'
+			consumeSequence(consume, 2)
+		case `\t`:
+			char = '\t'
+			consumeSequence(consume, 2)
+		case `\u`:
+			nextFour := peekSequence(peek, 2, 4)
+			parsed64, err := strconv.ParseInt(nextFour, 16, 32)
+			if err != nil {
+				return false, nil, errors.New("invalid unicode escape sequence: " + err.Error())
+			}
+			char = rune(parsed64)
+			consumeSequence(consume, 6)
+		}
+
+		if char == 0 {
+			// if no escape sequence set
+			char = consume()
+		}
+
+		buf = append(buf, char)
 	}
 
 	return false, nil, errors.New("string literals must end with quotation mark (U+0022)")
@@ -106,8 +147,6 @@ func lexNumber(peek func(int) rune, consume func() rune) (bool, token, error) {
 
 		buf = append(buf, consume())
 	}
-
-	fmt.Println(string(buf))
 
 	if len(buf) == 0 {
 		return false, nil, nil

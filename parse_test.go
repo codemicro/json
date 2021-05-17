@@ -7,10 +7,10 @@ import (
 )
 
 func Test_parse(t *testing.T) {
-	lx, err := lex([]byte(`{"hello": 36e-47}`))
-	fmt.Println(lx, err)
+	lx, err := lex([]byte(`{"hello": "\uD834\uDD1E"}`))
+	fmt.Println(err)
 	px, err := parse(lx)
-	fmt.Printf("%#v %v\n", px, err)
+	fmt.Println(err)
 	s, _ := json.MarshalIndent(px, "", "\t")
 	fmt.Println(string(s))
 }
