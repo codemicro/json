@@ -2,7 +2,6 @@ package json
 
 import (
 	"errors"
-	"fmt"
 )
 
 // parse a single value
@@ -13,7 +12,7 @@ func parse(t *tokens) (Node, error) {
 	} else if currentToken == leftCurlBracket {
 		return parseObject(t)
 	} else {
-		return TokenAsNode(t.consume()), nil
+		return TokenAsNode(t.consume())
 	}
 }
 
@@ -31,6 +30,11 @@ func parseArray(t *tokens) (Node, error) {
 		// TODO: we probably don't need a comma check in two places
 
 		if t.peek(0) == rightSqBracket {
+
+			if t.peek(-1) == comma {
+				return nil, errors.New("expected value")
+			}
+
 			t.consume() // consume right square bracket
 			return values, nil
 		}
@@ -74,7 +78,6 @@ func parseObject(t *tokens) (Node, error) {
 			return values, nil
 		}
 
-		fmt.Println(t.peek(-1), t.peek(0))
 		if x := t.peek(-1); !(x == comma || x == leftCurlBracket) {
 			// this call to t.peek with -1 is only safe to do since we know we have at least 1 item in the token array
 			// on account of the initial check
@@ -98,7 +101,6 @@ func parseObject(t *tokens) (Node, error) {
 		}
 
 		if valRune, ok := val.(rune); ok && isStructural(valRune) && valRune != leftSqBracket && valRune != leftCurlBracket {
-			fmt.Println(string(valRune))
 			return nil, errors.New("expected value")
 		}
 

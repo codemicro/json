@@ -152,6 +152,10 @@ func lexNumber(peek func(int) rune, consume func() rune) (bool, token, error) {
 		return false, nil, nil
 	}
 
+	if buf[0] == '+' {
+		return false, nil, errors.New("unexpected +")
+	}
+
 	if numPoints > 1 {
 		return false, nil, errors.New("numbers cannot have more than one point")
 	} else if numEs > 1 {
