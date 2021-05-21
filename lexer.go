@@ -156,6 +156,22 @@ func lexNumber(peek func(int) rune, consume func() rune) (bool, token, error) {
 		return false, nil, errors.New("unexpected +")
 	}
 
+	// check the first digit to see if it's a zero
+	var firstDigit rune
+	var hasMoreThanOneDigit bool
+	for _, char := range buf {
+		if isDigit(char) && firstDigit == 0 {
+			hasMoreThanOneDigit = false
+			firstDigit = char
+		} else {
+			hasMoreThanOneDigit = true
+		}
+	}
+
+	if firstDigit == '0' && hasMoreThanOneDigit {
+		return false, nil, errors.New("numbers cannot have zero as their first digit unless the value is zero")
+	}
+
 	if numPoints > 1 {
 		return false, nil, errors.New("numbers cannot have more than one point")
 	} else if numEs > 1 {

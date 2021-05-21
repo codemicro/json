@@ -17,7 +17,11 @@ func isStructural(r rune) bool {
 }
 
 func isNumeric(r rune) bool {
-	return ('0' <= r && r <= '9') || isE(r) || r == '.' || r == '-' || r == '+'
+	return isDigit(r) || isE(r) || r == '.' || r == '-' || r == '+'
+}
+
+func isDigit(r rune) bool {
+	return '0' <= r && r <= '9'
 }
 
 func isE(r rune) bool {
