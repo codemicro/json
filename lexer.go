@@ -158,18 +158,20 @@ func lexNumber(peek func(int) rune, consume func() rune) (bool, token, error) {
 
 	// check the first digit to see if it's a zero
 	var firstDigit rune
-	var hasMoreThanOneDigit bool
+	var nextDigit rune
 	for _, char := range buf {
-		if isDigit(char) && firstDigit == 0 {
-			hasMoreThanOneDigit = false
-			firstDigit = char
-		} else {
-			hasMoreThanOneDigit = true
+		if isDigit(char) || char == '.' {
+			if firstDigit == 0 {
+				firstDigit = char
+			} else {
+				nextDigit = char
+				break
+			}
 		}
 	}
 
-	if firstDigit == '0' && hasMoreThanOneDigit {
-		return false, nil, errors.New("numbers cannot have zero as their first digit unless the value is zero")
+	if firstDigit == '0' && !(nextDigit == 0 || nextDigit == '.') {
+		return false, nil, errors.New("numbers cannot have zero as their first digit unless the value is zero or the number is a decimal")
 	}
 
 	if numPoints > 1 {
@@ -185,6 +187,14 @@ func lexNumber(peek func(int) rune, consume func() rune) (bool, token, error) {
 		}
 		return true, asInteger, nil
 	} else {
+
+		// reject sequences that end with a point
+		if buf[len(buf)-1] == '.' {
+			return false, nil, errors.New("numbers cannot end with a point")
+		}
+
+		// reject sequences that start with a point
+
 		asFloat, err := strconv.ParseFloat(string(buf), 64)
 		if err != nil {
 			return false, nil, err
