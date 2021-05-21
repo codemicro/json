@@ -194,6 +194,9 @@ func lexNumber(peek func(int) rune, consume func() rune) (bool, token, error) {
 		}
 
 		// reject sequences that start with a point
+		if buf[0] == '.' {
+			return false, nil, errors.New("numbers cannot start with a point")
+		}
 
 		asFloat, err := strconv.ParseFloat(string(buf), 64)
 		if err != nil {
